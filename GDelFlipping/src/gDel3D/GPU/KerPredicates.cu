@@ -53,6 +53,8 @@ __constant__ DPredWrapper dPredWrapper;
 
 #include "KerPredWrapper.h"
 
+__forceinline__ __device__ float int_as_float(int x) { return __int_as_float(x); }
+
 void setPredWrapperConstant( const DPredWrapper &hostPredWrapper ) 
 {
     CudaSafeCall( cudaMemcpyToSymbol( dPredWrapper, &hostPredWrapper, sizeof( hostPredWrapper ) ) ); 

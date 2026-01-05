@@ -38,7 +38,9 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.
 */
-
+#include <cuda_runtime.h>
+#include <thrust/device_ptr.h>
+#include <thrust/copy.h>
 #pragma once
 
 #include "../CommonTypes.h"
@@ -277,13 +279,18 @@ public:
 
         try
         {
-            _ptr = thrust::device_malloc< T >( _capacity );
+            T* raw = nullptr;
+            cudaError_t err = cudaMalloc(reinterpret_cast<void**>(&raw), _capacity * sizeof(T));
+            if (err != cudaSuccess) {
+                throw std::runtime_error("cudaMalloc failed");
+            }
+            _ptr = thrust::device_pointer_cast(raw);
         }
         catch( ... )
         {
             // output an error message and exit
             const int OneMB = ( 1 << 20 );
-            std::cerr << "thrust::device_malloc failed to allocate " << ( sizeof( T ) * _capacity ) / OneMB << " MB!" << std::endl;
+            std::cerr << "cudaMalloc failed to allocate " << ( sizeof( T ) * _capacity ) / OneMB << " MB!" << std::endl;
             std::cerr << "size = " << _size << " sizeof(T) = " << sizeof( T ) << std::endl; 
             exit( -1 );
         }

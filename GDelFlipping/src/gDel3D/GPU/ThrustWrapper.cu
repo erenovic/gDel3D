@@ -40,9 +40,8 @@ DAMAGE.
 */
 
 #include "ThrustWrapper.h"
-
 #include <map>
-
+#include <cuda_runtime.h>
 #include <thrust/system/cuda/execution_policy.h>
 
 class CachedAllocator
@@ -117,8 +116,12 @@ public:
             {
                 //std::cout << "CachedAllocator: no free block found; calling cudaMalloc " << numBytes << std::endl;
 
-                // allocate memory and convert cuda::pointer to raw pointer
-                result = thrust::device_malloc<char>( numBytes ).get();
+                char* raw = nullptr;
+                cudaError_t err = cudaMalloc(reinterpret_cast<void**>(&raw), numBytes);
+                if(err != cudaSuccess) {
+                    throw std::runtime_error("cudaMalloc failed");
+                }
+                result = raw;
             }
             catch( std::runtime_error &e )
             {
