@@ -11,7 +11,6 @@ endif()
 set(CMAKE_CUDA_ARCHITECTURES ${GDEL3D_CUDA_ARCH})
 add_library(gdel3d STATIC
   GDelFlipping/src/DelaunayChecker.cpp
-  GDelFlipping/src/Demo.cpp
   GDelFlipping/src/InputCreator.cpp
   GDelFlipping/src/RandGen.cpp
   GDelFlipping/src/gDel3D/GpuDelaunay.cu
@@ -37,7 +36,5 @@ set_target_properties(gdel3d PROPERTIES
 
 target_link_libraries(gdel3d PUBLIC CUDA::cudart)
 
-add_executable(gflip3d
-  GDelFlipping/src/Demo.cpp
-)
+add_executable(gflip3d GDelFlipping/src/Demo.cpp)
 target_link_libraries(gflip3d PRIVATE gdel3d)
